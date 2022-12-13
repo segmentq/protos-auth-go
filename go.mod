@@ -1,4 +1,4 @@
-module protos_auth_go
+module github.com/segmentq/protos-auth-go
 
 go 1.19
 
