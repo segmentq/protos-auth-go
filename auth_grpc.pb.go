@@ -23,6 +23,9 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AuthServiceClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	GrantAccess(ctx context.Context, in *GrantAccessRequest, opts ...grpc.CallOption) (*GrantAccessResponse, error)
+	RevokeAccess(ctx context.Context, in *RevokeAccessRequest, opts ...grpc.CallOption) (*RevokeAccessResponse, error)
+	ShowAccess(ctx context.Context, in *ShowAccessRequest, opts ...grpc.CallOption) (AuthService_ShowAccessClient, error)
 }
 
 type authServiceClient struct {
@@ -42,11 +45,64 @@ func (c *authServiceClient) Login(ctx context.Context, in *LoginRequest, opts ..
 	return out, nil
 }
 
+func (c *authServiceClient) GrantAccess(ctx context.Context, in *GrantAccessRequest, opts ...grpc.CallOption) (*GrantAccessResponse, error) {
+	out := new(GrantAccessResponse)
+	err := c.cc.Invoke(ctx, "/auth.AuthService/GrantAccess", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) RevokeAccess(ctx context.Context, in *RevokeAccessRequest, opts ...grpc.CallOption) (*RevokeAccessResponse, error) {
+	out := new(RevokeAccessResponse)
+	err := c.cc.Invoke(ctx, "/auth.AuthService/RevokeAccess", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) ShowAccess(ctx context.Context, in *ShowAccessRequest, opts ...grpc.CallOption) (AuthService_ShowAccessClient, error) {
+	stream, err := c.cc.NewStream(ctx, &AuthService_ServiceDesc.Streams[0], "/auth.AuthService/ShowAccess", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &authServiceShowAccessClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type AuthService_ShowAccessClient interface {
+	Recv() (*AccessDefinition, error)
+	grpc.ClientStream
+}
+
+type authServiceShowAccessClient struct {
+	grpc.ClientStream
+}
+
+func (x *authServiceShowAccessClient) Recv() (*AccessDefinition, error) {
+	m := new(AccessDefinition)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // AuthServiceServer is the server API for AuthService service.
 // All implementations should embed UnimplementedAuthServiceServer
 // for forward compatibility
 type AuthServiceServer interface {
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
+	GrantAccess(context.Context, *GrantAccessRequest) (*GrantAccessResponse, error)
+	RevokeAccess(context.Context, *RevokeAccessRequest) (*RevokeAccessResponse, error)
+	ShowAccess(*ShowAccessRequest, AuthService_ShowAccessServer) error
 }
 
 // UnimplementedAuthServiceServer should be embedded to have forward compatible implementations.
@@ -55,6 +111,15 @@ type UnimplementedAuthServiceServer struct {
 
 func (UnimplementedAuthServiceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
+}
+func (UnimplementedAuthServiceServer) GrantAccess(context.Context, *GrantAccessRequest) (*GrantAccessResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GrantAccess not implemented")
+}
+func (UnimplementedAuthServiceServer) RevokeAccess(context.Context, *RevokeAccessRequest) (*RevokeAccessResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RevokeAccess not implemented")
+}
+func (UnimplementedAuthServiceServer) ShowAccess(*ShowAccessRequest, AuthService_ShowAccessServer) error {
+	return status.Errorf(codes.Unimplemented, "method ShowAccess not implemented")
 }
 
 // UnsafeAuthServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -86,6 +151,63 @@ func _AuthService_Login_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthService_GrantAccess_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GrantAccessRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).GrantAccess(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/auth.AuthService/GrantAccess",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).GrantAccess(ctx, req.(*GrantAccessRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_RevokeAccess_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RevokeAccessRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).RevokeAccess(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/auth.AuthService/RevokeAccess",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).RevokeAccess(ctx, req.(*RevokeAccessRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_ShowAccess_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(ShowAccessRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(AuthServiceServer).ShowAccess(m, &authServiceShowAccessServer{stream})
+}
+
+type AuthService_ShowAccessServer interface {
+	Send(*AccessDefinition) error
+	grpc.ServerStream
+}
+
+type authServiceShowAccessServer struct {
+	grpc.ServerStream
+}
+
+func (x *authServiceShowAccessServer) Send(m *AccessDefinition) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // AuthService_ServiceDesc is the grpc.ServiceDesc for AuthService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -97,7 +219,21 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "Login",
 			Handler:    _AuthService_Login_Handler,
 		},
+		{
+			MethodName: "GrantAccess",
+			Handler:    _AuthService_GrantAccess_Handler,
+		},
+		{
+			MethodName: "RevokeAccess",
+			Handler:    _AuthService_RevokeAccess_Handler,
+		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "ShowAccess",
+			Handler:       _AuthService_ShowAccess_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "auth.proto",
 }

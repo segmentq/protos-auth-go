@@ -3,6 +3,14 @@
 
 ## Table of Contents
 
+- [access.proto](#access-proto)
+    - [AccessDefinition](#auth-AccessDefinition)
+    - [GrantAccessRequest](#auth-GrantAccessRequest)
+    - [GrantAccessResponse](#auth-GrantAccessResponse)
+    - [RevokeAccessRequest](#auth-RevokeAccessRequest)
+    - [RevokeAccessResponse](#auth-RevokeAccessResponse)
+    - [ShowAccessRequest](#auth-ShowAccessRequest)
+  
 - [auth.proto](#auth-proto)
     - [LoginRequest](#auth-LoginRequest)
     - [LoginResponse](#auth-LoginResponse)
@@ -10,6 +18,116 @@
     - [AuthService](#auth-AuthService)
   
 - [Scalar Value Types](#scalar-value-types)
+
+
+
+<a name="access-proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## access.proto
+
+
+
+<a name="auth-AccessDefinition"></a>
+
+### AccessDefinition
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| subject | [string](#string) |  |  |
+| group | [string](#string) |  |  |
+| domain | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="auth-GrantAccessRequest"></a>
+
+### GrantAccessRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| definition | [AccessDefinition](#auth-AccessDefinition) |  |  |
+
+
+
+
+
+
+<a name="auth-GrantAccessResponse"></a>
+
+### GrantAccessResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| ok | [bool](#bool) |  |  |
+
+
+
+
+
+
+<a name="auth-RevokeAccessRequest"></a>
+
+### RevokeAccessRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| definition | [AccessDefinition](#auth-AccessDefinition) |  |  |
+
+
+
+
+
+
+<a name="auth-RevokeAccessResponse"></a>
+
+### RevokeAccessResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| ok | [bool](#bool) |  |  |
+
+
+
+
+
+
+<a name="auth-ShowAccessRequest"></a>
+
+### ShowAccessRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| subject | [string](#string) |  |  |
+| group | [string](#string) |  |  |
+| domain | [string](#string) |  |  |
+
+
+
+
+
+ 
+
+ 
+
+ 
+
+ 
 
 
 
@@ -65,6 +183,9 @@
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
 | Login | [LoginRequest](#auth-LoginRequest) | [LoginResponse](#auth-LoginResponse) |  |
+| GrantAccess | [GrantAccessRequest](#auth-GrantAccessRequest) | [GrantAccessResponse](#auth-GrantAccessResponse) |  |
+| RevokeAccess | [RevokeAccessRequest](#auth-RevokeAccessRequest) | [RevokeAccessResponse](#auth-RevokeAccessResponse) |  |
+| ShowAccess | [ShowAccessRequest](#auth-ShowAccessRequest) | [AccessDefinition](#auth-AccessDefinition) stream |  |
 
  
 
